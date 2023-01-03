@@ -1,10 +1,11 @@
-from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 import json
+import logging
 import os
 from ppp_crawler.config import Config
 from ppp_crawler.driver import Driver
@@ -23,26 +24,41 @@ class Crawler:
         states = self.__get_states()[1:2]
         cities = [self.__get_cities(state) for state in states]
         
-        cities = [i for city in cities for i in city][1:4]
+        cities = [i for city in cities for i in city]
         
         loans = [self.__get_loans(city) for city in cities]
         loans = [i for loan in loans for i in loan]
         return loans 
     
     def get_loan_detail(self, loan:Loan):
+        logging.info(f"Extracting loan detail from: {loan.link}")
         root = self.__get_root(loan.link)
-        table = root.find_element(By.XPATH, xpath.LoanDetail.TABLE)
-        loan_detail = LoanDetail(
-            business_name=loan.business_name,
-            link=loan.link,
-            city=loan.city,
-            address=table.find_element(By.XPATH, xpath.LoanDetail._ADDRESS).text,
-            jobs_retained=table.find_element(By.XPATH, xpath.LoanDetail._JOBS_RETAINED).text,
-            date_approved=table.find_element(By.XPATH, xpath.LoanDetail._DATE_APPROVED).text,
-            status="SUCCESS",
-            element=table,
-            is_extracted=True
-        )
+        try:
+            table = root.find_element(By.XPATH, xpath.LoanDetail.TABLE)
+            loan_detail = LoanDetail(
+                business_name=loan.business_name,
+                link=loan.link,
+                city=loan.city,
+                address=table.find_element(By.XPATH, xpath.LoanDetail._ADDRESS).text,
+                jobs_retained=table.find_element(By.XPATH, xpath.LoanDetail._JOBS_RETAINED).text,
+                date_approved=table.find_element(By.XPATH, xpath.LoanDetail._DATE_APPROVED).text,
+                status="SUCCESS",
+                element=table,
+                is_extracted=True
+            )
+        except NoSuchElementException as e:
+            logging.error("No Such Element Exception")
+            loan_detail = LoanDetail(
+                business_name=loan.business_name,
+                link=loan.link,
+                city=loan.city,
+                address=None,
+                jobs_retained=None,
+                date_approved=None,
+                status="NoSuchElementException",
+                element=None,
+                is_extracted=False
+            )
         
         return loan_detail
     
@@ -68,6 +84,7 @@ class Crawler:
         return states
     
     def __get_cities(self, state:State):
+        logging.info(f"Extracting City from: {state.link}")
         root = self.__get_root(state.link)
         cities = []
         raw_cities = root.find_elements(By.XPATH, xpath.City.CITIES)
@@ -85,6 +102,7 @@ class Crawler:
         return cities
         
     def __get_loans(self, city:City):
+        logging.info(f"Extracting Loans from: {city.link}")
         root = self.__get_root(city.link)
         loans = []
         raw_loans = root.find_elements(By.XPATH, xpath.Loan.LOANS)
