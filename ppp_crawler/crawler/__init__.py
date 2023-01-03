@@ -9,7 +9,7 @@ import os
 from ppp_crawler.config import Config
 from ppp_crawler.driver import Driver
 from ppp_crawler import xpath
-from ppp_crawler.entities import City, Loan, State
+from ppp_crawler.entities import City, Loan, LoanDetail, State
 
 
 class Crawler:
@@ -20,7 +20,6 @@ class Crawler:
         self.root = self.__get_root(Config.CRAWL_ROOT_URL)
     
     def get_ppp_loans(self) -> None:
-        
         states = self.__get_states()[1:2]
         cities = [self.__get_cities(state) for state in states]
         
@@ -29,6 +28,23 @@ class Crawler:
         loans = [self.__get_loans(city) for city in cities]
         loans = [i for loan in loans for i in loan]
         return loans 
+    
+    def get_loan_detail(self, loan:Loan):
+        root = self.__get_root(loan.link)
+        table = root.find_element(By.XPATH, xpath.LoanDetail.TABLE)
+        loan_detail = LoanDetail(
+            business_name=loan.business_name,
+            link=loan.link,
+            city=loan.city,
+            address=table.find_element(By.XPATH, xpath.LoanDetail._ADDRESS).text,
+            jobs_retained=table.find_element(By.XPATH, xpath.LoanDetail._JOBS_RETAINED).text,
+            date_approved=table.find_element(By.XPATH, xpath.LoanDetail._DATE_APPROVED).text,
+            status="SUCCESS",
+            element=table,
+            is_extracted=True
+        )
+        
+        return loan_detail
     
     def __get_root(self, url:str) -> WebElement:
         self.driver.get(url)

@@ -1,6 +1,7 @@
 from selenium.webdriver.remote.webelement import WebElement
 
 from abc import ABC, abstractmethod
+import csv
 from dataclasses import dataclass
 import datetime
 import json
@@ -77,5 +78,23 @@ class LoanDetail(Loan):
     element: WebElement
     is_extracted: bool = False
     
+    def __repr__(self) -> str:
+        return f"Loan(business_name={self.business_name}, LoanDetail(address={self.address}, jobs_retained={self.jobs_retained}, date_approved={self.date_approved}))"
     
+    def save(self, path:str="./output"):
+        path = os.path.join(path, f"{self.city.state.name}.csv")
+            
+        with open(path, 'a+', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=["state", "city", "business_name", "address", "jobs_retained", "date_approved"])
+            writer.writerow(self.to_dict())
+    
+    def to_dict(self):
+        return dict(
+            state=self.city.state.name,
+            city=self.city.name,
+            business_name=self.business_name,
+            address=self.address,
+            jobs_retained=self.jobs_retained,
+            date_approved=self.date_approved
+        )
     
