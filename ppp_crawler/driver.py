@@ -4,7 +4,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 
-from tiktok_crawler.config import Config
+from ppp_crawler.config import Config
 
 class _Singleton(type):
     _instances = {}

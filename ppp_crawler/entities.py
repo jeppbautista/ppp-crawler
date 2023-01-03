@@ -16,6 +16,8 @@ class Loans:
     jobs_retained: str
     date_approved: str
     lender: str
+    state: str
+    city: str
     cd: str
     status: str
     is_extracted: bool = False
