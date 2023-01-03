@@ -64,7 +64,7 @@ class Loan:
     element: WebElement
     
     def __post_init__(self):
-        self.business_name = self.business_name.strip()
+        self.business_name = self.business_name.strip().replace('\r', '').replace('\n', '')
     
     def __repr__(self) -> str:
         return f"Loan(business_name={self.business_name}, city={self.city})"
@@ -77,6 +77,9 @@ class LoanDetail(Loan):
     status: str
     element: WebElement
     is_extracted: bool = False
+    
+    def __post_init__(self):
+        self.address = self.address.strip().replace('\r', '').replace('\n', '') if self.address else None
     
     def __repr__(self) -> str:
         return f"Loan(business_name={self.business_name}, LoanDetail(address={self.address}, jobs_retained={self.jobs_retained}, date_approved={self.date_approved}))"
