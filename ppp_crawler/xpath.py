@@ -12,7 +12,7 @@ class City(Root):
     _LINK = "./a"
     
 class Loan(Root):
-    LOANS = "./div/div/div/div[2]/table/tbody/tr[1]/td[2]"
+    LOANS = "./div/div/div/div[2]/table/tbody/tr/td[2]"
     _BUSINESS_NAME = "./a/b"
     _LINK = "./a"
     
