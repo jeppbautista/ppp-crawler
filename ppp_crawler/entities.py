@@ -85,9 +85,9 @@ class LoanDetail(Loan):
         return f"Loan(business_name={self.business_name}, LoanDetail(address={self.address}, jobs_retained={self.jobs_retained}, date_approved={self.date_approved}))"
     
     def save(self, path:str="./output"):
-        path = os.path.join(path, f"{self.city.state.name}.csv")
+        path = os.path.join(path, f"{self.city.state.code}.csv")
             
-        with open(path, 'a+', newline='') as f:
+        with open(path, 'a+', newline='', encoding="utf-8") as f:
             writer = csv.DictWriter(f, fieldnames=["state", "city", "business_name", "address", "jobs_retained", "date_approved"])
             writer.writerow(self.to_dict())
     
